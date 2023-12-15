@@ -20,3 +20,8 @@ class UserExperienceSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserExperience
         fields = ['id', 'user_id', 'experience_type', 'experience_content']
+
+class UserKeywordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserKeyword
+        fields = ['id', 'user_id', 'keyword', 'type']
