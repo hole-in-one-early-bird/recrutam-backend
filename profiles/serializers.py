@@ -25,3 +25,8 @@ class UserKeywordSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserKeyword
         fields = ['id', 'user_id', 'keyword', 'type']
+
+class UserKeywordTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserKeywordType
+        fields = ['id', 'user_id', 'type']
