@@ -41,3 +41,22 @@ class UserExperience(models.Model):
 
     def __str__(self):
         return f"User: {self.user_id.name}, Experience Type: {self.experience_type}, Experience Content: {self.experience_content}"
+
+
+class KeywordSet(models.Model):
+    id = models.AutoField(primary_key=True)
+    keyword = models.CharField(max_length=255)
+    type = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"Keyword: {self.keyword}, Type: {self.type}"
+
+
+class UserKeyword(models.Model):
+    id = models.AutoField(primary_key=True)
+    user_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    keyword = models.CharField(max_length=20)
+    type = models.CharField(max_length=20)
+
+    def __str__(self):
+        return f"User: {self.user_id.name}, Keyword: {self.keyword}, Type: {self.type}"
