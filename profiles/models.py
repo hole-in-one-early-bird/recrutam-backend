@@ -31,3 +31,13 @@ class UserEducation(models.Model):
 
     def __str__(self):
         return f"User: {self.user_id.name}, Education: {self.education}, Major: {self.major}, Major Check: {self.major_check}"
+
+
+class UserExperience(models.Model):
+    id = models.AutoField(primary_key=True)
+    user_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    experience_type = models.CharField(max_length=255)
+    experience_content = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"User: {self.user_id.name}, Experience Type: {self.experience_type}, Experience Content: {self.experience_content}"

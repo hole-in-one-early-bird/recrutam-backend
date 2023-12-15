@@ -28,3 +28,19 @@ class UserEducationView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserExperienceView(APIView):
+    def post(self, request, *args, **kwargs):
+        experiences_data = request.data.get("experiences", [])
+        errors = []
+
+        for experience_data in experiences_data:
+            serializer = UserExperienceSerializer(data=experience_data)
+            if serializer.is_valid():
+                serializer.save()
+            else:
+                errors.append(serializer.errors)
+
+        if errors:
+            return Response({"errors": errors}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": "Experiences added successfully"}, status=status.HTTP_201_CREATED)
