@@ -1,8 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import UserProfile, UserInterest
-from .serializers import UserProfileSerializer, UserInterestSerializer
+from .models import *
+from .serializers import *
 
 class UserProfileView(APIView):
     def post(self, request, *args, **kwargs):
@@ -16,6 +16,14 @@ class UserProfileView(APIView):
 class UserInterestView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = UserInterestSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserEducationView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = UserEducationSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
