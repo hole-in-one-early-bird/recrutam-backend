@@ -1,3 +1,8 @@
 from django.db import models
 
-# Create your models here.
+class UserCareerAnalysis(models.Model):
+    job_name = models.CharField(max_length=255)
+    job_description = models.CharField(max_length=255)
+    related_major = models.CharField(max_length=255)
+    certifications = models.CharField(max_length=255)
+    recommendation_reason = models.CharField(max_length=255)
