@@ -20,3 +20,14 @@ class UserInterest(models.Model):
 
     def __str__(self):
         return f"User: {self.user_id.name}, Interests: {self.interest1}, {self.interest2}, {self.interest3}"
+
+
+class UserEducation(models.Model):
+    id = models.AutoField(primary_key=True)
+    user_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    education = models.CharField(max_length=10)
+    major = models.CharField(max_length=50)
+    major_check = models.CharField(max_length=50)
+
+    def __str__(self):
+        return f"User: {self.user_id.name}, Education: {self.education}, Major: {self.major}, Major Check: {self.major_check}"
