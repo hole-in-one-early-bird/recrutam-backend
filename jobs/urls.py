@@ -3,6 +3,5 @@ from .views import *
 
 urlpatterns = [
     path('recommendations/', SyncProfileDataView.as_view(), name='recommendations'),
-    #path('recommendations/', your_view_function, name='recommendations'),
-    #path('completion/', completion_request_view, name='completion-request'),
+    path('recommendations/<int:user_id>/', SyncProfileDataView.as_view(), name='user-profile-get'),
 ]

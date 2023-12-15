@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import *
 from .serializers import *
+from profiles.models import *
+from profiles.serializers import *
 import requests
 import re
 
@@ -55,7 +57,7 @@ class SyncProfileDataView(APIView):
 
                 # 숫자를 기준으로 텍스트 쪼개기
                 splitted_contents = re.split(r'\s*(\d+\.)\s*', longest_content)
-                
+
                 # 빈 문자열 및 None 제거
                 result_list = [item.strip() for item in splitted_contents if item.strip() and item is not None]
 
@@ -85,3 +87,33 @@ class SyncProfileDataView(APIView):
 
         except Exception as e:
             return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def get(self, request, user_id):
+        try:
+            # 사용자 ID를 기반으로 profiles 앱 모델에서 데이터 검색
+            user_profile = UserProfile.objects.get(id=user_id)
+            user_education = UserEducation.objects.filter(user_id=user_id)
+            user_experience = UserExperience.objects.filter(user_id=user_id)
+            user_interest = UserInterest.objects.filter(user_id=user_id)
+            user_keyword = UserKeyword.objects.filter(user_id=user_id)
+
+            # 데이터 시리얼라이즈
+            profile_serializer = UserProfileSerializer(user_profile)
+            education_serializer = UserEducationSerializer(user_education, many=True)
+            experience_serializer = UserExperienceSerializer(user_experience, many=True)
+            interest_serializer = UserInterestSerializer(user_interest, many=True)
+            keyword_serializer = UserKeywordSerializer(user_keyword, many=True)
+
+            # 응답에 시리얼라이즈된 데이터 반환
+            response_data = {
+                'profile': profile_serializer.data,
+                'education': education_serializer.data,
+                'experience': experience_serializer.data,
+                'interest': interest_serializer.data,
+                'keyword': keyword_serializer.data,
+            }
+
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        except UserProfile.DoesNotExist:
+            return Response({'error': '사용자 프로필을 찾을 수 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
