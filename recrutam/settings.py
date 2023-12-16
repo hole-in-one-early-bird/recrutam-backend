@@ -133,3 +133,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 ALLOWED_HOSTS = ['49.50.166.153', '127.0.0.1', 'localhost']
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+APPEND_SLASH=False 
