@@ -13,6 +13,9 @@ import re
 class SyncProfileDataView(APIView):
     def post(self, request, *args, **kwargs):
         try:
+            # URL에서 user_id 가져오기
+            user_id = self.kwargs.get('user_id')
+
             data = request.data
 
             request_data = {
@@ -66,6 +69,7 @@ class SyncProfileDataView(APIView):
                 # 저장할 모델 데이터 생성
                 
                 user_career_data = {
+                    'user_id': user_id,
                     'job_name': result_list[1],
                     'job_description': result_list[3],
                     'related_major': result_list[5],
@@ -79,11 +83,12 @@ class SyncProfileDataView(APIView):
                     serializer.save()
                     
 
-                # UserCareerAnalysis 테이블의 마지막 데이터를 가져옴
-                last_career_data = UserCareerAnalysis.objects.order_by('-id').first()
+                # UserCareerAnalysis 테이블의 user_id에 맞는 데이터 가져옴
+                #user_career_data = UserCareerAnalysis.objects.filter(user_id=user_id)
+                user_career_data = UserCareerAnalysis.objects.filter(user_id=user_id).first()
 
                 # 시리얼라이저를 사용하여 데이터를 직렬화
-                serializer = UserCareerAnalysisSerializer(last_career_data)
+                serializer = UserCareerAnalysisSerializer(user_career_data)
 
                 # 직렬화된 데이터를 response로 반환
                 return Response(serializer.data, status=status.HTTP_200_OK)
