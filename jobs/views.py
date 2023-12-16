@@ -195,9 +195,20 @@ class CareerChatbotView(APIView):
 
     def get(self, request, *args, **kwargs):
         try:
-            job_names = UserCareerAnalysis.objects.values_list('job_name', flat=True).last()
+            user_id = kwargs.get('user_id')
 
-            return Response(job_names, status=status.HTTP_200_OK)
+            #job_names = UserCareerAnalysis.objects.values_list('job_name', flat=True).last()
+
+            #return Response(job_names, status=status.HTTP_200_OK)
+
+            # user_id를 기반으로 데이터를 찾음
+            user_career_data = UserCareerAnalysis.objects.filter(user_id=user_id).last()
+            
+            if user_career_data:
+                job_name = user_career_data.job_name
+                return Response({"job_name": job_name}, status=status.HTTP_200_OK)
+            else:
+                return Response({"message": "No data found for the given user_id"}, status=status.HTTP_404_NOT_FOUND)
 
         except Exception as e:
             return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
