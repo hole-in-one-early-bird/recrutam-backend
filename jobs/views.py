@@ -8,6 +8,8 @@ from profiles.models import *
 from profiles.serializers import *
 import requests
 import re
+from django.http import JsonResponse, HttpResponse
+import json
 
 
 class SyncProfileDataView(APIView):
@@ -66,40 +68,51 @@ class SyncProfileDataView(APIView):
 
                 #print(result_list)
 
+                # UserProfile 모델에서 사용자 이름 가져오기
+                ###user_profile = UserProfile.objects.get(id=user_id)
+                ###user_name = user_profile.name
+                user_profile = UserProfile.objects.get(id=user_id)
+                user_name = user_profile.name
+
                 # 저장할 모델 데이터 생성
-                
                 user_career_data = {
                     'user_id': user_id,
+                    'user_name': user_name,  # 사용자 이름 추가
                     'job_name': result_list[1],
                     'job_description': result_list[3],
                     'related_major': result_list[5],
                     'certifications': result_list[7],  
                     'recommendation_reason': result_list[9] 
                 }
-                        
+                
                 # 시리얼라이저를 사용하여 데이터 유효성 검사 및 저장
                 serializer = UserCareerAnalysisSerializer(data=user_career_data)
                 if serializer.is_valid():
+                    print('here')
                     serializer.save()
-                    
+                else:
+                    print(serializer.errors)
 
                 # UserCareerAnalysis 테이블의 user_id에 맞는 데이터 가져옴
                 #user_career_data = UserCareerAnalysis.objects.filter(user_id=user_id)
-                user_career_data = UserCareerAnalysis.objects.filter(user_id=user_id).first()
+                ##user_career_data = UserCareerAnalysis.objects.filter(user_id=user_id).first()
 
                 # 시리얼라이저를 사용하여 데이터를 직렬화
-                serializer = UserCareerAnalysisSerializer(user_career_data)
+                ##serializer = UserCareerAnalysisSerializer(user_career_data)
 
                 # 직렬화된 데이터를 response로 반환
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                #return Response(serializer.data, status=status.HTTP_200_OK)
+                return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False, json_dumps_params={'ensure_ascii': False})
                 #return Response(response.text, status=status.HTTP_200_OK)
                 #return Response(status=status.HTTP_200_OK)
                 #print(response.text)
 
-            return Response({"message": "Failed to sync data with Clova Studio API."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            #return Response({"message": "Failed to sync data with Clova Studio API."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return HttpResponse(json.dumps({"message": "Failed to sync data with Clova Studio API."}), content_type='application/json', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         except Exception as e:
-            return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return HttpResponse(json.dumps({"message": str(e)}), content_type='application/json', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            #return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def get(self, request, user_id):
         try:
@@ -126,7 +139,9 @@ class SyncProfileDataView(APIView):
                 'keyword': keyword_serializer.data,
             }
 
-            return Response(response_data, status=status.HTTP_200_OK)
+            #return Response(response_data, status=status.HTTP_200_OK)
+            #return JsonResponse(response_data, status=status.HTTP_200_OK)
+            return JsonResponse(response_data, status=status.HTTP_200_OK, safe=False, json_dumps_params={'ensure_ascii': False})
 
         except UserProfile.DoesNotExist:
             return Response({'error': '사용자 프로필을 찾을 수 없습니다.'}, status=status.HTTP_404_NOT_FOUND)

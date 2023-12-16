@@ -3,10 +3,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import *
 from .serializers import *
-from .keywords import add_keyword_set
+#from .keywords import add_keyword_set
 import random
 from collections import Counter
 from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
 
 class UserProfileView(APIView):
     def post(self, request, *args, **kwargs):
@@ -21,9 +22,11 @@ class UserProfileView(APIView):
         try:
             user_profile = UserProfile.objects.get(id=user_id)
             serializer = UserProfileSerializer(user_profile)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            #return Response(serializer.data, status=status.HTTP_200_OK)
+            return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False, json_dumps_params={'ensure_ascii': False})
         except UserProfile.DoesNotExist:
-            return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+            #return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+            return JsonResponse({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND, safe=False, json_dumps_params={'ensure_ascii': False})
 
 class UserInterestView(APIView):
     def post(self, request, *args, **kwargs):
@@ -37,11 +40,14 @@ class UserInterestView(APIView):
         try:
             user_interest = UserInterest.objects.get(user_id=user_id)
             serializer = UserInterestSerializer(user_interest)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            #return Response(serializer.data, status=status.HTTP_200_OK)
+            return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False, json_dumps_params={'ensure_ascii': False})
         except UserInterest.DoesNotExist:
-            return Response({"message": "UserInterest not found"}, status=status.HTTP_404_NOT_FOUND)
+            #return Response({"message": "UserInterest not found"}, status=status.HTTP_404_NOT_FOUND)
+            return JsonResponse({"message": "UserInterest not found"}, status=status.HTTP_404_NOT_FOUND, safe=False, json_dumps_params={'ensure_ascii': False})
         except Exception as e:
-            return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            #return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return JsonResponse({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, safe=False, json_dumps_params={'ensure_ascii': False})
 
 class UserEducationView(APIView):
     def post(self, request, *args, **kwargs):
@@ -55,11 +61,14 @@ class UserEducationView(APIView):
         try:
             user_education = UserEducation.objects.get(user_id=user_id)
             serializer = UserEducationSerializer(user_education)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            #return Response(serializer.data, status=status.HTTP_200_OK)
+            return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False, json_dumps_params={'ensure_ascii': False})
         except UserEducation.DoesNotExist:
-            return Response({"message": "UserEducation not found"}, status=status.HTTP_404_NOT_FOUND)
+            #return Response({"message": "UserEducation not found"}, status=status.HTTP_404_NOT_FOUND)
+            return JsonResponse({"message": "UserEducation not found"}, status=status.HTTP_404_NOT_FOUND, safe=False, json_dumps_params={'ensure_ascii': False})
         except Exception as e:
-            return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            #return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return JsonResponse({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, safe=False, json_dumps_params={'ensure_ascii': False})
 
 class UserExperienceView(APIView):
     def post(self, request, *args, **kwargs):
@@ -81,12 +90,14 @@ class UserExperienceView(APIView):
         try:
             user_experiences = UserExperience.objects.filter(user_id=user_id)
             serializer = UserExperienceSerializer(user_experiences, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            #return Response(serializer.data, status=status.HTTP_200_OK)
+            return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False, json_dumps_params={'ensure_ascii': False})
         except Exception as e:
-            return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            #return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return JsonResponse({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, safe=False, json_dumps_params={'ensure_ascii': False})
 
 # 키워드 세트 추가 함수
-add_keyword_set()
+#add_keyword_set()
 
 class Info5View(APIView):
     def get(self, request): # 랜덤으로 각 유형 당 키워드 8개씩 
@@ -98,7 +109,8 @@ class Info5View(APIView):
             selected_keywords = random.sample(list(keywords), min(8, len(keywords)))
             random_keywords[keyword_type] = [{"id": keyword.id, "keyword": keyword.keyword} for keyword in selected_keywords]
 
-        return Response(random_keywords, status=status.HTTP_200_OK)
+        #return Response(random_keywords, status=status.HTTP_200_OK)
+        return JsonResponse(random_keywords, status=status.HTTP_200_OK, safe=False, json_dumps_params={'ensure_ascii': False})
     
     def post(self, request, *args, **kwargs):
         user_id = request.data.get('user_id')
