@@ -9,7 +9,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
 class UserInterestSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserInterest
-        fields = ['id', 'user_id', 'interest1', 'interest2', 'interest3']
+        #fields = ['id', 'user_id', 'interest1', 'interest2', 'interest3']
+        fields = '__all__'
 
 class UserEducationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -24,7 +25,7 @@ class UserExperienceSerializer(serializers.ModelSerializer):
 class UserKeywordSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserKeyword
-        fields = ['id', 'user_id', 'keyword', 'type']
+        fields = '__all__'
 
 class UserKeywordTypeSerializer(serializers.ModelSerializer):
     class Meta:
