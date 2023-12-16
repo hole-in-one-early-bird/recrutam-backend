@@ -16,6 +16,14 @@ class UserProfileView(APIView):
             user_id = user_profile.id  # 생성된 UserProfile 객체의 ID 추출
             return Response({"user_id": user_id}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def get(self, request, user_id, *args, **kwargs):
+        try:
+            user_profile = UserProfile.objects.get(id=user_id)
+            serializer = UserProfileSerializer(user_profile)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except UserProfile.DoesNotExist:
+            return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
 class UserInterestView(APIView):
     def post(self, request, *args, **kwargs):
@@ -24,6 +32,16 @@ class UserInterestView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def get(self, request, user_id, *args, **kwargs):
+        try:
+            user_interest = UserInterest.objects.get(user_id=user_id)
+            serializer = UserInterestSerializer(user_interest)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except UserInterest.DoesNotExist:
+            return Response({"message": "UserInterest not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class UserEducationView(APIView):
     def post(self, request, *args, **kwargs):
@@ -32,6 +50,16 @@ class UserEducationView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def get(self, request, user_id, *args, **kwargs):
+        try:
+            user_education = UserEducation.objects.get(user_id=user_id)
+            serializer = UserEducationSerializer(user_education)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except UserEducation.DoesNotExist:
+            return Response({"message": "UserEducation not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class UserExperienceView(APIView):
     def post(self, request, *args, **kwargs):
@@ -48,6 +76,14 @@ class UserExperienceView(APIView):
         if errors:
             return Response({"errors": errors}, status=status.HTTP_400_BAD_REQUEST)
         return Response({"message": "Experiences added successfully"}, status=status.HTTP_201_CREATED)
+    
+    def get(self, request, user_id, *args, **kwargs):
+        try:
+            user_experiences = UserExperience.objects.filter(user_id=user_id)
+            serializer = UserExperienceSerializer(user_experiences, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # 키워드 세트 추가 함수
 add_keyword_set()

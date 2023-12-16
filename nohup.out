@@ -1,0 +1,9 @@
+Watching for file changes with StatReloader
+Performing system checks...
+
+System check identified no issues (0 silenced).
+December 15, 2023 - 16:20:46
+Django version 3.2.23, using settings 'recrutam.settings'
+Starting development server at http://0.0.0.0:8080/
+Quit the server with CONTROL-C.
+Error: That port is already in use.
