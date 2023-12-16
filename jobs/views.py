@@ -9,7 +9,10 @@ from profiles.serializers import *
 import requests
 import re
 from django.http import JsonResponse, HttpResponse
+from urllib.parse import unquote_plus
 import json
+import logging
+logger = logging.getLogger('pybo')
 
 
 class SyncProfileDataView(APIView):
@@ -19,9 +22,33 @@ class SyncProfileDataView(APIView):
             user_id = self.kwargs.get('user_id')
 
             data = request.data
+            #print(data)
+
+            # QueryDict의 키를 추출
+            key_list = list(data.keys())
+            
+
+            # JSON 문자열로 변환
+            try:
+                json_data = json.loads(key_list[0])
+            except json.JSONDecodeError:
+                print("Invalid JSON format in the QueryDict.")
+                json_data = None
+
+            # 변환된 JSON 데이터 확인
+            if json_data:
+                print(f'this is json_data : {json_data}')
+
+            #json.dumps(data) 
+            
+            # URL 디코딩
+            #decoded_data = unquote_plus(data)
+
+            # JSON 형식으로 변환
+            #json_data = json.loads(decoded_data)
 
             request_data = {
-                'messages': data,
+                'messages': json_data,
                 'topP': 0.8,
                 'topK': 0,
                 'maxTokens': 256,
@@ -88,7 +115,6 @@ class SyncProfileDataView(APIView):
                 # 시리얼라이저를 사용하여 데이터 유효성 검사 및 저장
                 serializer = UserCareerAnalysisSerializer(data=user_career_data)
                 if serializer.is_valid():
-                    print('here')
                     serializer.save()
                 else:
                     print(serializer.errors)
@@ -100,6 +126,11 @@ class SyncProfileDataView(APIView):
                 # 시리얼라이저를 사용하여 데이터를 직렬화
                 ##serializer = UserCareerAnalysisSerializer(user_career_data)
 
+                 # 정상적인 경우 로그 기록
+                logging.info(f"Data synced successfully for user_id: {user_id}")
+                logging.error(f"Request Content: {request.data}")
+                logging.error(f"Request json_data Content: {json_data}")
+                logging.error(f"Request key_list Content: {json_data}")
                 # 직렬화된 데이터를 response로 반환
                 #return Response(serializer.data, status=status.HTTP_200_OK)
                 return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False, json_dumps_params={'ensure_ascii': False})
@@ -107,10 +138,18 @@ class SyncProfileDataView(APIView):
                 #return Response(status=status.HTTP_200_OK)
                 #print(response.text)
 
+            # 에러 응답일 경우 로그 기록
+            logging.error(f"Failed to sync data with Clova Studio API. Status Code: {response.status_code}")
+            logging.error(f"Response Content: {response.text}")
+            logging.error(f"Request Content: {request.data}")
+
             #return Response({"message": "Failed to sync data with Clova Studio API."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             return HttpResponse(json.dumps({"message": "Failed to sync data with Clova Studio API."}), content_type='application/json', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         except Exception as e:
+            # 예외 발생 시 로그 기록
+            logging.exception(f"An error occurred: {str(e)}")
+
             return HttpResponse(json.dumps({"message": str(e)}), content_type='application/json', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             #return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -151,11 +190,27 @@ class CareerChatbotView(APIView):
         try:
             data = request.data
 
+            # QueryDict의 키를 추출
+            key_list = list(data.keys())
+
+            # JSON 문자열로 변환
+            try:
+                json_data = json.loads(key_list[0])
+            except json.JSONDecodeError:
+                print("Invalid JSON format in the QueryDict.")
+                json_data = None
+
+            # 변환된 JSON 데이터 확인
+            if json_data:
+                print(f'this is json_data : {json_data}')
+                logging.error(f"Request json_data Content: {json_data}")
+
+
             request_data = {
-                'messages': data,
+                'messages': json_data,
                 'topP': 0.8,
                 'topK': 0,
-                'maxTokens': 256,
+                'maxTokens': 150, #256,
                 'temperature': 0.5,
                 'repeatPenalty': 5.0,
                 'stopBefore': [],
@@ -209,6 +264,7 @@ class CareerChatbotView(APIView):
             return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def get(self, request, *args, **kwargs):
+        response_data = {}  # 여기에서 response_data 초기화
         try:
             user_id = kwargs.get('user_id')
 
@@ -221,9 +277,17 @@ class CareerChatbotView(APIView):
             
             if user_career_data:
                 job_name = user_career_data.job_name
-                return Response({"job_name": job_name}, status=status.HTTP_200_OK)
+                #return Response({"job_name": job_name}, status=status.HTTP_200_OK)
+                return JsonResponse(job_name, status=status.HTTP_200_OK, safe=False, json_dumps_params={'ensure_ascii': False})
             else:
-                return Response({"message": "No data found for the given user_id"}, status=status.HTTP_404_NOT_FOUND)
+                logging.error("user_career_data error")
+                #return Response({"message": "No data found for the given user_id"}, status=status.HTTP_404_NOT_FOUND)
+                response_data = {"message": "No data found for the given user_id"}
+                return JsonResponse(response_data, status=status.HTTP_404_NOT_FOUND, safe=False, json_dumps_params={'ensure_ascii': False})
+
 
         except Exception as e:
-            return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            #return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logging.exception(f"An error occurred: {str(e)}")
+            response_data = {"message": str(e)}
+            return JsonResponse(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR, safe=False, json_dumps_params={'ensure_ascii': False})

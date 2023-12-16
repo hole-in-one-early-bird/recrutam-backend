@@ -3,21 +3,39 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import *
 from .serializers import *
-#from .keywords import add_keyword_set
+from .keywords import add_keyword_set
 import random
 from collections import Counter
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
+import json
+import logging
+logger = logging.getLogger('pybo')
 
 class UserProfileView(APIView):
     def post(self, request, *args, **kwargs):
-        serializer = UserProfileSerializer(data=request.data)
-        if serializer.is_valid():
-            user_profile = serializer.save()  # UserProfile 객체를 생성하고 반환
-            user_id = user_profile.id  # 생성된 UserProfile 객체의 ID 추출
-            return Response({"user_id": user_id}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+        data = request.data
+        key_list = list(data.keys())
+
+        try:
+            json_data = json.loads(key_list[0])
+        except json.JSONDecodeError:
+            print("Invalid JSON format in the QueryDict.")
+            json_data = None
+
+        if json_data:
+            serializer = UserProfileSerializer(data=json_data)
+            if serializer.is_valid():
+                user_profile = serializer.save()
+                user_id = user_profile.id
+                return Response({"user_id": user_id}, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            error_message = "Invalid JSON format in the QueryDict."
+            logging.error(error_message)
+            return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)   
+
     def get(self, request, user_id, *args, **kwargs):
         try:
             user_profile = UserProfile.objects.get(id=user_id)
@@ -30,12 +48,60 @@ class UserProfileView(APIView):
 
 class UserInterestView(APIView):
     def post(self, request, *args, **kwargs):
-        serializer = UserInterestSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+        data = request.data
+        logging.error(f"Request Content: {data}")
+        key_list = list(data.keys())
+        logging.error(f"Key_list Content: {key_list}")
+
+        try:
+            json_data = json.loads(key_list[0])
+            print(f'this is json_data : {json_data}')
+            logging.error(f"Request json_data Content: {json_data}")
+        except json.JSONDecodeError:
+            print("Invalid JSON format in the QueryDict.")
+            json_data = None
+            logging.error("Invalid JSON format in the QueryDict.")
+
+        if json_data:
+            # user_id에 해당하는 UserProfile 객체 가져오기
+            #user_id = json_data.get('user_id')
+            #user_profile = UserProfile.objects.get(id=user_id)
+
+            # user_id 추출
+            user_profile = UserProfile.objects.get(id=json_data.get('user_id'))
+            user_id = user_profile.id  # user_id 변수 선언
+
+            # 저장할 모델 데이터 생성
+            user_interest_data = {
+                'user_id': user_id,
+                'interest1': json_data.get('interest1'),
+                'interest2': json_data.get('interest2'),
+                'interest3': json_data.get('interest3'),
+            }
+
+            #serializer = UserInterestSerializer(data=json_data)
+             # Serializer에 user_profile를 context로 전달
+            #serializer = UserInterestSerializer(data=json_data, context={'user_profile': user_profile})
+
+            # 시리얼라이저를 사용하여 데이터 유효성 검사 및 저장
+            serializer = UserInterestSerializer(data=user_interest_data)
+
+            logging.error(f"{serializer}")
+            if serializer.is_valid():
+                # 저장하기 전에 user_id 설정
+                #serializer.validated_data['user_id'] = user_profile
+                serializer.save()
+                #return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return JsonResponse(serializer.data, status=status.HTTP_201_CREATED, safe=False, json_dumps_params={'ensure_ascii': False})
+            else:
+                #return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return JsonResponse(serializer.data, status=status.HTTP_400_BAD_REQUEST, safe=False, json_dumps_params={'ensure_ascii': False})
+        else:
+            error_message = "Invalid JSON format in the QueryDict."
+            logging.error(error_message)
+            #return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({"Invalid JSON format in the QueryDict."}, status=status.HTTP_400_BAD_REQUEST, safe=False, json_dumps_params={'ensure_ascii': False})
+
     def get(self, request, user_id, *args, **kwargs):
         try:
             user_interest = UserInterest.objects.get(user_id=user_id)
@@ -51,12 +117,28 @@ class UserInterestView(APIView):
 
 class UserEducationView(APIView):
     def post(self, request, *args, **kwargs):
-        serializer = UserEducationSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+        data = request.data
+        key_list = list(data.keys())
+
+        try:
+            print(key_list)
+            json_data = json.loads(key_list[0])
+        except json.JSONDecodeError:
+            print("Invalid JSON format in the QueryDict.")
+            json_data = None
+
+        if json_data:
+            serializer = UserEducationSerializer(data=json_data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            error_message = "Invalid JSON format in the QueryDict."
+            logging.error(error_message)
+            return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
+  
     def get(self, request, user_id, *args, **kwargs):
         try:
             user_education = UserEducation.objects.get(user_id=user_id)
@@ -73,6 +155,7 @@ class UserEducationView(APIView):
 class UserExperienceView(APIView):
     def post(self, request, *args, **kwargs):
         experiences_data = request.data.get("experiences", [])
+        logging.error(experiences_data)
         errors = []
 
         for experience_data in experiences_data:
@@ -97,7 +180,7 @@ class UserExperienceView(APIView):
             return JsonResponse({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, safe=False, json_dumps_params={'ensure_ascii': False})
 
 # 키워드 세트 추가 함수
-#add_keyword_set()
+add_keyword_set()
 
 class Info5View(APIView):
     def get(self, request): # 랜덤으로 각 유형 당 키워드 8개씩 
@@ -113,28 +196,67 @@ class Info5View(APIView):
         return JsonResponse(random_keywords, status=status.HTTP_200_OK, safe=False, json_dumps_params={'ensure_ascii': False})
     
     def post(self, request, *args, **kwargs):
-        user_id = request.data.get('user_id')
-        user_keywords_data = request.data.get('user_keywords', [])
+        data = request.data
+            #print(data)
+        logging.error(f'This is data: {data}')
+
+        # QueryDict의 키를 추출
+        key_list = list(data.keys())
+            
+
+        # JSON 문자열로 변환
+        try:
+            json_data = json.loads(key_list[0])
+        except json.JSONDecodeError:
+            print("Invalid JSON format in the QueryDict.")
+            json_data = None
+
+        # 변환된 JSON 데이터 확인
+        if json_data:
+            print(f'This is json_data: {json_data}')
+            logging.error(f'This is json_data: {json_data}')
+
+        # user_id 추출
+        user_id = json_data.get('user_id')
+
+        # user_keywords 추출 (리스트 형태로 예상)
+        user_keywords_data = json_data.get('user_keywords', [])
+        #####
+        #user_id = request.data.get('user_id')
+        #user_keywords_data = request.data.get('user_keywords', [])
+        logging.error(user_id)
+        logging.error(user_keywords_data)
+
+        # 한 번만 호출하여 user_profile을 가져옴
+        #user_profile = get_object_or_404(UserProfile, id=user_id)
+        user_profile = UserProfile.objects.get(id=user_id)
+        user_id = user_profile.id  # user_id 변수 선언
 
         user_keywords = []
         for keyword_data in user_keywords_data:
+            print(f'this is keyword data : {keyword_data}')
             user_keyword_data = {
                 'user_id': user_id,
                 'keyword': keyword_data['keyword'],
                 'type': keyword_data['type'],
             }
+            logging.error(f'This is user_keyword_data: {user_keyword_data}')
             user_keyword_serializer = UserKeywordSerializer(data=user_keyword_data)
+            logging.error(f'This is json_data: {user_keyword_serializer}')
             if user_keyword_serializer.is_valid():
                 user_keywords.append(user_keyword_serializer.save())
             else:
                 return Response(user_keyword_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         # 한 번만 호출하여 user_profile을 가져옴
-        user_profile = get_object_or_404(UserProfile, id=user_id)
+        #user_profile = get_object_or_404(UserProfile, id=user_id)
+        ##user_profile = UserProfile.objects.get(id=user_id)
+        ##user_profile = user_profile.id  # user_id 변수 선언
 
         # 유형 뽑아서 UserKeywordType 테이블에 저장
         user_keyword_types = UserKeyword.objects.filter(user_id=user_id).values_list('type', flat=True)
         type_counts = Counter(user_keyword_types)
+        logging.error(f'This is user_keyword_types: {user_keyword_types}')
 
         #print(type_counts)
          # 등장 횟수에 따라 순위 부여

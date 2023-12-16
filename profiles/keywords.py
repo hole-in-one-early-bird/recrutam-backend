@@ -1,6 +1,6 @@
 from .models import KeywordSet
 
-'''def add_keyword_set():
+def add_keyword_set():
     keyword_sets = [
         # 현장형
         ("조립하기", "현장형"),
@@ -139,4 +139,4 @@ from .models import KeywordSet
         # 중복 체크
         if not KeywordSet.objects.filter(keyword=keyword, type=keyword_type).exists():
             KeywordSet.objects.create(keyword=keyword, type=keyword_type)
-            '''
+            
