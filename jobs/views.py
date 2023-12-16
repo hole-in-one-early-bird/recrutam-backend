@@ -79,8 +79,16 @@ class SyncProfileDataView(APIView):
                     serializer.save()
                     
 
+                # UserCareerAnalysis 테이블의 마지막 데이터를 가져옴
+                last_career_data = UserCareerAnalysis.objects.order_by('-id').first()
+
+                # 시리얼라이저를 사용하여 데이터를 직렬화
+                serializer = UserCareerAnalysisSerializer(last_career_data)
+
+                # 직렬화된 데이터를 response로 반환
+                return Response(serializer.data, status=status.HTTP_200_OK)
                 #return Response(response.text, status=status.HTTP_200_OK)
-                return Response(status=status.HTTP_200_OK)
+                #return Response(status=status.HTTP_200_OK)
                 #print(response.text)
 
             return Response({"message": "Failed to sync data with Clova Studio API."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
