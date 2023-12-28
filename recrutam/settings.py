@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-+#u*twng$i!m^7e#0c!z%&k$&!sm_@495d##@&*wez0_m@hlpm'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False #True
+DEBUG = True #False 
 
 ALLOWED_HOSTS = []
 
@@ -38,10 +38,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',  # CORS 추가
+    'rest_framework',
+    'rest_framework.authtoken',
     'mypage',
     'home',
     'profiles',
     'jobs',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -198,4 +201,10 @@ LOGGING = {
             'level': 'INFO',
         },
     }
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES':[
+        'rest_framework.authentication.TokenAuthentication',
+    ]
 }
