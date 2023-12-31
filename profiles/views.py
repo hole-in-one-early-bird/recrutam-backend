@@ -189,7 +189,7 @@ class Info5View(APIView):
 
         for keyword_type in keyword_types:
             keywords = KeywordSet.objects.filter(type=keyword_type)
-            selected_keywords = random.sample(list(keywords), min(8, len(keywords)))
+            selected_keywords = random.sample(list(keywords), min(16, len(keywords)))
             random_keywords[keyword_type] = [{"id": keyword.id, "keyword": keyword.keyword} for keyword in selected_keywords]
 
         #return Response(random_keywords, status=status.HTTP_200_OK)
