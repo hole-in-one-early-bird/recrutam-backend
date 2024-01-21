@@ -1,3 +1,4 @@
+#-- 추천 직업 조회 API --#
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -14,15 +15,15 @@ import json
 import logging
 logger = logging.getLogger('pybo')
 
-
+# 직업 추천
 class SyncProfileDataView(APIView):
+    # 맞춤 커리어 분석 결과 조회
     def post(self, request, *args, **kwargs):
         try:
             # URL에서 user_id 가져오기
             user_id = self.kwargs.get('user_id')
 
             data = request.data
-            #print(data)
 
             # QueryDict의 키를 추출
             key_list = list(data.keys())
@@ -38,14 +39,6 @@ class SyncProfileDataView(APIView):
             # 변환된 JSON 데이터 확인
             if json_data:
                 print(f'this is json_data : {json_data}')
-
-            #json.dumps(data) 
-            
-            # URL 디코딩
-            #decoded_data = unquote_plus(data)
-
-            # JSON 형식으로 변환
-            #json_data = json.loads(decoded_data)
 
             request_data = {
                 'messages': json_data,
@@ -79,7 +72,6 @@ class SyncProfileDataView(APIView):
 
                 # "\\n"을 제거한 내용을 리스트로 저장
                 cleaned_contents = [content.replace("\\n", " ") for content in content_matches]
-                #print(cleaned_contents)
 
                 # 길이에 따라 내림차순 정렬
                 sorted_contents = sorted(cleaned_contents, key=len, reverse=True)
@@ -93,11 +85,7 @@ class SyncProfileDataView(APIView):
                 # 빈 문자열 및 None 제거
                 result_list = [item.strip() for item in splitted_contents if item.strip() and item is not None]
 
-                #print(result_list)
-
                 # UserProfile 모델에서 사용자 이름 가져오기
-                ###user_profile = UserProfile.objects.get(id=user_id)
-                ###user_name = user_profile.name
                 user_profile = UserProfile.objects.get(id=user_id)
                 user_name = user_profile.name
 
@@ -119,31 +107,20 @@ class SyncProfileDataView(APIView):
                 else:
                     print(serializer.errors)
 
-                # UserCareerAnalysis 테이블의 user_id에 맞는 데이터 가져옴
-                #user_career_data = UserCareerAnalysis.objects.filter(user_id=user_id)
-                ##user_career_data = UserCareerAnalysis.objects.filter(user_id=user_id).first()
-
-                # 시리얼라이저를 사용하여 데이터를 직렬화
-                ##serializer = UserCareerAnalysisSerializer(user_career_data)
-
                  # 정상적인 경우 로그 기록
                 logging.info(f"Data synced successfully for user_id: {user_id}")
                 logging.error(f"Request Content: {request.data}")
                 logging.error(f"Request json_data Content: {json_data}")
                 logging.error(f"Request key_list Content: {json_data}")
+
                 # 직렬화된 데이터를 response로 반환
-                #return Response(serializer.data, status=status.HTTP_200_OK)
                 return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False, json_dumps_params={'ensure_ascii': False})
-                #return Response(response.text, status=status.HTTP_200_OK)
-                #return Response(status=status.HTTP_200_OK)
-                #print(response.text)
 
             # 에러 응답일 경우 로그 기록
             logging.error(f"Failed to sync data with Clova Studio API. Status Code: {response.status_code}")
             logging.error(f"Response Content: {response.text}")
             logging.error(f"Request Content: {request.data}")
 
-            #return Response({"message": "Failed to sync data with Clova Studio API."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             return HttpResponse(json.dumps({"message": "Failed to sync data with Clova Studio API."}), content_type='application/json', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         except Exception as e:
@@ -151,8 +128,8 @@ class SyncProfileDataView(APIView):
             logging.exception(f"An error occurred: {str(e)}")
 
             return HttpResponse(json.dumps({"message": str(e)}), content_type='application/json', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            #return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    # 맞춤 커리어 분석을 위해 profiles API를 통해 저장한 데이터 보내기
     def get(self, request, user_id):
         try:
             # 사용자 ID를 기반으로 profiles 앱 모델에서 데이터 검색
@@ -178,14 +155,14 @@ class SyncProfileDataView(APIView):
                 'keyword': keyword_serializer.data,
             }
 
-            #return Response(response_data, status=status.HTTP_200_OK)
-            #return JsonResponse(response_data, status=status.HTTP_200_OK)
             return JsonResponse(response_data, status=status.HTTP_200_OK, safe=False, json_dumps_params={'ensure_ascii': False})
 
         except UserProfile.DoesNotExist:
             return Response({'error': '사용자 프로필을 찾을 수 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
 
+# 커리어 챗봇
 class CareerChatbotView(APIView):
+    # 추천 직업 상세 탐색
     def post(self, request, *args, **kwargs):
         try:
             data = request.data
@@ -238,7 +215,6 @@ class CareerChatbotView(APIView):
 
                 # "\\n"을 제거한 내용을 리스트로 저장
                 cleaned_contents = [content.replace("\\n", " ") for content in content_matches]
-                #print(cleaned_contents)
 
                 # 길이에 따라 내림차순 정렬
                 sorted_contents = sorted(cleaned_contents, key=len, reverse=True)
@@ -251,11 +227,9 @@ class CareerChatbotView(APIView):
 
                 # 빈 문자열 및 None 제거
                 result_list = [item.strip() for item in splitted_contents if item.strip() and item is not None]
-                #print(result_list)
 
                 result_string = " ".join(result_list)
 
-                #return Response(response.text, status=status.HTTP_200_OK)
                 return Response(result_string, status=status.HTTP_200_OK)
 
             return Response({"message": "Failed to sync data with Clova Studio API."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -263,31 +237,25 @@ class CareerChatbotView(APIView):
         except Exception as e:
             return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    # 직업 이름만 받기
     def get(self, request, *args, **kwargs):
         response_data = {}  # 여기에서 response_data 초기화
         try:
             user_id = kwargs.get('user_id')
-
-            #job_names = UserCareerAnalysis.objects.values_list('job_name', flat=True).last()
-
-            #return Response(job_names, status=status.HTTP_200_OK)
 
             # user_id를 기반으로 데이터를 찾음
             user_career_data = UserCareerAnalysis.objects.filter(user_id=user_id).last()
             
             if user_career_data:
                 job_name = user_career_data.job_name
-                #return Response({"job_name": job_name}, status=status.HTTP_200_OK)
                 return JsonResponse(job_name, status=status.HTTP_200_OK, safe=False, json_dumps_params={'ensure_ascii': False})
             else:
                 logging.error("user_career_data error")
-                #return Response({"message": "No data found for the given user_id"}, status=status.HTTP_404_NOT_FOUND)
                 response_data = {"message": "No data found for the given user_id"}
                 return JsonResponse(response_data, status=status.HTTP_404_NOT_FOUND, safe=False, json_dumps_params={'ensure_ascii': False})
 
 
         except Exception as e:
-            #return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             logging.exception(f"An error occurred: {str(e)}")
             response_data = {"message": str(e)}
             return JsonResponse(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR, safe=False, json_dumps_params={'ensure_ascii': False})
