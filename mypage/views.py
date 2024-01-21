@@ -1,3 +1,4 @@
+#-- 마이페이지 API --#
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -9,6 +10,7 @@ from .serializers import *
 from profiles.models import *
 from django.http import JsonResponse, HttpResponse
 
+# 찜한 직업 - 추가(POST), 조회(GET), 삭제(DELETE)
 class BookmarkJobView(APIView):
     def get(self, request, user_id, *args, **kwargs):
         try:
@@ -19,11 +21,9 @@ class BookmarkJobView(APIView):
             mypage_bookmarks = UserBookmark.objects.filter(user_id=user_profile)
             serializer = UserBookmarkSerializer(mypage_bookmarks, many=True)
             
-            #return Response(serializer.data, status=status.HTTP_200_OK)
             return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False, json_dumps_params={'ensure_ascii': False})
 
         except Exception as e:
-            #return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             return JsonResponse({"message": "User not found"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, safe=False, json_dumps_params={'ensure_ascii': False})
 
     def post(self, request, user_id, *args, **kwargs):
@@ -58,12 +58,10 @@ class BookmarkJobView(APIView):
             bookmark_to_delete = get_object_or_404(UserBookmark, id=bookmark_id, user_id=user_profile)
             bookmark_to_delete.delete()
 
-            #return Response({"message": "Bookmark deleted successfully."}, status=status.HTTP_200_OK)
             response_data = {"message": "Bookmark deleted successfully."}
             return JsonResponse(response_data, status=status.HTTP_200_OK, safe=False, json_dumps_params={'ensure_ascii': False})
 
 
         except Exception as e:
-            #return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             response_data = {"message": str(e)}
             return JsonResponse(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR, safe=False, json_dumps_params={'ensure_ascii': False})
