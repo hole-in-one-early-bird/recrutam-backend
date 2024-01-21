@@ -11,5 +11,4 @@ urlpatterns = [
     path('info2/<int:user_id>/', UserInterestView.as_view(), name='info2_get'),
     path('info3/<int:user_id>/', UserEducationView.as_view(), name='info3_get'),
     path('info4/<int:user_id>/', UserExperienceView.as_view(), name='info4_get'),
-    #path('info5/<int:user_id>/', Info5View.as_view(), name='info5_get'),
 ]

@@ -12,8 +12,6 @@ class UserProfile(models.Model):
 
 
 class UserInterest(models.Model):
-    #id = models.AutoField(primary_key=True)
-    #user_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     user_id = models.IntegerField()
     interest1 = models.CharField(max_length=255)
     interest2 = models.CharField(max_length=255)
@@ -55,7 +53,6 @@ class KeywordSet(models.Model):
 
 class UserKeyword(models.Model):
     id = models.AutoField(primary_key=True)
-    #user_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     user_id = models.IntegerField()
     keyword = models.CharField(max_length=20)
     type = models.CharField(max_length=20)

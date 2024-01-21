@@ -9,7 +9,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
 class UserInterestSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserInterest
-        #fields = ['id', 'user_id', 'interest1', 'interest2', 'interest3']
         fields = '__all__'
 
 class UserEducationSerializer(serializers.ModelSerializer):
