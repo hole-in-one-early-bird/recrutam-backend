@@ -195,8 +195,8 @@ class CareerChatbotView(APIView):
             }
 
             # Clova Studio API 호출
-            clova_api_url = 'your clova_api_url'
-            api_key = 'your api_key'
+            clova_api_url = ''
+            api_key = ''
 
             headers = {
                 'X-NCP-CLOVASTUDIO-API-KEY': '',
