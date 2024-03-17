@@ -195,13 +195,13 @@ class CareerChatbotView(APIView):
             }
 
             # Clova Studio API 호출
-            clova_api_url = 'https://clovastudio.stream.ntruss.com/testapp/v1/chat-completions/HCX-002'
-            api_key = 'NTA0MjU2MWZlZTcxNDJiY58tx3puRhjmUbXrip8aqvbbrRCJug21YyQ5Mclpjcn3nt5hRJlFB1xYDM9yukOOuEIFhD9vBWwK/xn5+t8hy57vSMOXP7OWJmCK1rIkMfwVPJBb8e0jDnZ5nrMRh5ueFrGx8ffz7bQMkKbu4K9rJk2g+Gttnjtx6pGovnGDwAKudGrb3aI7z7wHjaeK25kgC3dQHpbQFF4Gw4ocAvdsNxU='
+            clova_api_url = 'your clova_api_url'
+            api_key = 'your api_key'
 
             headers = {
-                'X-NCP-CLOVASTUDIO-API-KEY': 'NTA0MjU2MWZlZTcxNDJiY7VDXefhz8V4ZzoevLBpy8lJ9HQR1OewMP1dViNpAkBnsyT5RAuHrfNCxdaSN7/iI9deWFY3wGBkGWgVquZizF72rWtMP1Yf3n5caxDqZg34MapRMeCxReYpDBRg+IlrKlF8lDyG4jxkgiy6od/4VGLQr1m8rgV7PbwSSvHI7icG1B1ysktd1FG2zC3ymdvFqLPP+1bV1BKIcjXvVX1GIxQ=',
-                'X-NCP-APIGW-API-KEY': 'oaIUfy0HmblC79yvZdADVBsuWyg0XhdhUw04mEFK',
-                'X-NCP-CLOVASTUDIO-REQUEST-ID': '7b6b237de52245c59ae8aaf92bdb0e0d',
+                'X-NCP-CLOVASTUDIO-API-KEY': '',
+                'X-NCP-APIGW-API-KEY': '',
+                'X-NCP-CLOVASTUDIO-REQUEST-ID': '',
                 'Content-Type': 'application/json; charset=utf-8',
                 'Accept': 'text/event-stream',
             }
