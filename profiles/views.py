@@ -1,3 +1,4 @@
+#-- 진로 탐색 개인정보 API --#
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -12,6 +13,7 @@ import json
 import logging
 logger = logging.getLogger('pybo')
 
+# 정보 1 - 이름, 성별, 나이, 저는요-
 class UserProfileView(APIView):
     def post(self, request, *args, **kwargs):
         data = request.data
@@ -40,12 +42,11 @@ class UserProfileView(APIView):
         try:
             user_profile = UserProfile.objects.get(id=user_id)
             serializer = UserProfileSerializer(user_profile)
-            #return Response(serializer.data, status=status.HTTP_200_OK)
             return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False, json_dumps_params={'ensure_ascii': False})
         except UserProfile.DoesNotExist:
-            #return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
             return JsonResponse({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND, safe=False, json_dumps_params={'ensure_ascii': False})
 
+# 정보 2 - 관심분야 선택
 class UserInterestView(APIView):
     def post(self, request, *args, **kwargs):
         data = request.data
@@ -63,9 +64,6 @@ class UserInterestView(APIView):
             logging.error("Invalid JSON format in the QueryDict.")
 
         if json_data:
-            # user_id에 해당하는 UserProfile 객체 가져오기
-            #user_id = json_data.get('user_id')
-            #user_profile = UserProfile.objects.get(id=user_id)
 
             # user_id 추출
             user_profile = UserProfile.objects.get(id=json_data.get('user_id'))
@@ -79,42 +77,32 @@ class UserInterestView(APIView):
                 'interest3': json_data.get('interest3'),
             }
 
-            #serializer = UserInterestSerializer(data=json_data)
-             # Serializer에 user_profile를 context로 전달
-            #serializer = UserInterestSerializer(data=json_data, context={'user_profile': user_profile})
-
             # 시리얼라이저를 사용하여 데이터 유효성 검사 및 저장
             serializer = UserInterestSerializer(data=user_interest_data)
 
             logging.error(f"{serializer}")
             if serializer.is_valid():
                 # 저장하기 전에 user_id 설정
-                #serializer.validated_data['user_id'] = user_profile
                 serializer.save()
-                #return Response(serializer.data, status=status.HTTP_201_CREATED)
                 return JsonResponse(serializer.data, status=status.HTTP_201_CREATED, safe=False, json_dumps_params={'ensure_ascii': False})
             else:
-                #return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                 return JsonResponse(serializer.data, status=status.HTTP_400_BAD_REQUEST, safe=False, json_dumps_params={'ensure_ascii': False})
         else:
             error_message = "Invalid JSON format in the QueryDict."
             logging.error(error_message)
-            #return Response({"message": error_message}, status=status.HTTP_400_BAD_REQUEST)
             return JsonResponse({"Invalid JSON format in the QueryDict."}, status=status.HTTP_400_BAD_REQUEST, safe=False, json_dumps_params={'ensure_ascii': False})
 
     def get(self, request, user_id, *args, **kwargs):
         try:
             user_interest = UserInterest.objects.get(user_id=user_id)
             serializer = UserInterestSerializer(user_interest)
-            #return Response(serializer.data, status=status.HTTP_200_OK)
             return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False, json_dumps_params={'ensure_ascii': False})
         except UserInterest.DoesNotExist:
-            #return Response({"message": "UserInterest not found"}, status=status.HTTP_404_NOT_FOUND)
             return JsonResponse({"message": "UserInterest not found"}, status=status.HTTP_404_NOT_FOUND, safe=False, json_dumps_params={'ensure_ascii': False})
         except Exception as e:
-            #return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             return JsonResponse({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, safe=False, json_dumps_params={'ensure_ascii': False})
 
+# 정보 3 - 최종학력, 학과, 전공 적성 체크
 class UserEducationView(APIView):
     def post(self, request, *args, **kwargs):
         data = request.data
@@ -143,15 +131,13 @@ class UserEducationView(APIView):
         try:
             user_education = UserEducation.objects.get(user_id=user_id)
             serializer = UserEducationSerializer(user_education)
-            #return Response(serializer.data, status=status.HTTP_200_OK)
             return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False, json_dumps_params={'ensure_ascii': False})
         except UserEducation.DoesNotExist:
-            #return Response({"message": "UserEducation not found"}, status=status.HTTP_404_NOT_FOUND)
             return JsonResponse({"message": "UserEducation not found"}, status=status.HTTP_404_NOT_FOUND, safe=False, json_dumps_params={'ensure_ascii': False})
         except Exception as e:
-            #return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             return JsonResponse({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, safe=False, json_dumps_params={'ensure_ascii': False})
 
+# 정보 4 - 경험 선택, 입력
 class UserExperienceView(APIView):
     def post(self, request, *args, **kwargs):
         experiences_data = request.data.get("experiences", [])
@@ -173,15 +159,14 @@ class UserExperienceView(APIView):
         try:
             user_experiences = UserExperience.objects.filter(user_id=user_id)
             serializer = UserExperienceSerializer(user_experiences, many=True)
-            #return Response(serializer.data, status=status.HTTP_200_OK)
             return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False, json_dumps_params={'ensure_ascii': False})
         except Exception as e:
-            #return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             return JsonResponse({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR, safe=False, json_dumps_params={'ensure_ascii': False})
 
 # 키워드 세트 추가 함수
 add_keyword_set()
 
+# 정보 5 - 파트 당 랜덤으로 키워드 보여주기
 class Info5View(APIView):
     def get(self, request): # 랜덤으로 각 유형 당 키워드 8개씩 
         keyword_types = ["현장형", "탐구형", "예술형", "사회형", "리더형", "사무형"]
@@ -189,15 +174,13 @@ class Info5View(APIView):
 
         for keyword_type in keyword_types:
             keywords = KeywordSet.objects.filter(type=keyword_type)
-            selected_keywords = random.sample(list(keywords), min(8, len(keywords)))
+            selected_keywords = random.sample(list(keywords), min(16, len(keywords)))
             random_keywords[keyword_type] = [{"id": keyword.id, "keyword": keyword.keyword} for keyword in selected_keywords]
 
-        #return Response(random_keywords, status=status.HTTP_200_OK)
         return JsonResponse(random_keywords, status=status.HTTP_200_OK, safe=False, json_dumps_params={'ensure_ascii': False})
     
     def post(self, request, *args, **kwargs):
         data = request.data
-            #print(data)
         logging.error(f'This is data: {data}')
 
         # QueryDict의 키를 추출
@@ -221,14 +204,11 @@ class Info5View(APIView):
 
         # user_keywords 추출 (리스트 형태로 예상)
         user_keywords_data = json_data.get('user_keywords', [])
-        #####
-        #user_id = request.data.get('user_id')
-        #user_keywords_data = request.data.get('user_keywords', [])
+
         logging.error(user_id)
         logging.error(user_keywords_data)
 
         # 한 번만 호출하여 user_profile을 가져옴
-        #user_profile = get_object_or_404(UserProfile, id=user_id)
         user_profile = UserProfile.objects.get(id=user_id)
         user_id = user_profile.id  # user_id 변수 선언
 
@@ -248,17 +228,11 @@ class Info5View(APIView):
             else:
                 return Response(user_keyword_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        # 한 번만 호출하여 user_profile을 가져옴
-        #user_profile = get_object_or_404(UserProfile, id=user_id)
-        ##user_profile = UserProfile.objects.get(id=user_id)
-        ##user_profile = user_profile.id  # user_id 변수 선언
-
         # 유형 뽑아서 UserKeywordType 테이블에 저장
         user_keyword_types = UserKeyword.objects.filter(user_id=user_id).values_list('type', flat=True)
         type_counts = Counter(user_keyword_types)
         logging.error(f'This is user_keyword_types: {user_keyword_types}')
 
-        #print(type_counts)
          # 등장 횟수에 따라 순위 부여
          # 코드 수정해야 함!갯수가 동일한 경우 동일한 값 모두 포함하도록#
         type_ranks = {}
@@ -277,7 +251,7 @@ class Info5View(APIView):
         for user_type, rank in type_ranks.items():
             if rank <= 2:  # 갯수별 차이가 확실한 경우 상위 2개 유형만 추출
                 user_keyword_type_instances.append(UserKeywordType(user_id=user_profile, type=user_type))
-        #print(type_ranks)
+ 
         # 동일한 갯수를 가진 경우 모든 유형을 포함
         remaining_types = []
         if len(type_ranks) > 2 and rank == 2:
